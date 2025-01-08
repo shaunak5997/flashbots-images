@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euxo pipefail
+
+# Copy kernel and config to a place where mkosi can find it
+mkdir -p "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION"
+cp "$KERNEL_IMAGE" "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION/vmlinuz"
+cp ./kernel-yocto.config "$BUILDROOT/boot/config-$KERNEL_VERSION"
+
+# Example inittab for root shell
+cat > "$BUILDROOT/etc/inittab" <<EOF
+id:2:initdefault:
+si::sysinit:/etc/init.d/rcS
+s0:2345:respawn:/bin/sh
+EOF
