@@ -28,7 +28,7 @@ Current Functionality
 - [x] Doesn't use libraries or binaries from host
 - [x] Build process doesn't require containerization
 - [x] Small image size (<50Mb root partition base size)
-- [ ] Ultra minimal initrd (currently uses systemd-boot)
+- [x] Ultra minimal initramfs
 - [ ] Packaged cleanly as a tiny UKI image
 - [ ] Linked with a proof of concept flashbots reproducible Debian pkg repo
 - [ ] Verification Script
