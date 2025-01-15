@@ -5,17 +5,3 @@ set -euxo pipefail
 mkdir -p "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION"
 cp "$KERNEL_IMAGE" "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION/vmlinuz"
 cp ./kernel-yocto.config "$BUILDROOT/boot/config-$KERNEL_VERSION"
-
-# Build initramfs
-mkosi-chroot dracut \
-    --kver "$KERNEL_VERSION" \
-    -m "rootfs-block" \
-    --reproducible \
-    --nofscks \
-    --no-early-microcode \
-    --compress=zstd \
-    "/initrd.img"
-
-# Move initramfs to artifact dir
-mkdir -p "$ARTIFACTDIR/io.mkosi.initrd"
-mv "$BUILDROOT/initrd.img" "$ARTIFACTDIR/io.mkosi.initrd/initrd.img"

@@ -14,10 +14,23 @@ Usage
 
 ```shell
 nix develop -c $SHELL
-mkosi --force qemu
+mkosi --force
 ```
 
-> Make sure the above command is not run with sudo, as this will clear necessary enviornment variables set by the nix shell
+> Make sure the above command is not run with sudo, as this will clear necessary environment variables set by the nix shell
+
+Run with:
+
+```shell
+sudo qemu-system-x86_64 \                                                                   mkosi-poc on  main  nix-shell-env took 15s 
+  -machine type=q35,smm=on \
+  -m 2048M \
+  -nographic \
+  -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2/x64/OVMF_CODE.secboot.4m.fd \
+  -drive file=/usr/share/edk2/x64/OVMF_VARS.4m.fd,if=pflash,format=raw \
+  -kernel build/tdx-debian
+```
+
 
 Current Functionality
 ---------------------

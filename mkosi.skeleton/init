@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Mount the essential filesystems
+mkdir -p /dev /proc /sys /run /dev/pts /dev/shm
+mount -t proc -o noexec,nosuid,nodev proc /proc
+mount -t sysfs -o noexec,nosuid,nodev sysfs /sys
+mount -t devtmpfs -o exec,nosuid devtmpfs /dev
+
+# Hand over to sysvinit
+exec /sbin/init
