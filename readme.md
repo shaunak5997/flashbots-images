@@ -42,7 +42,7 @@ Current Functionality
 - [x] Build process doesn't require containerization
 - [x] Small image size (<50Mb root partition base size)
 - [x] Ultra minimal initramfs
-- [ ] Packaged cleanly as a tiny UKI image
+- [x] Packaged cleanly as a tiny UKI image
 - [ ] Linked with a proof of concept flashbots reproducible Debian pkg repo
 - [ ] Verification Script
 - [ ] Proper CI
