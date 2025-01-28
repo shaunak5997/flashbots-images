@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
-source buildernet/build_rust_package.sh
+source scripts/build_rust_package.sh
 
 build_rust_package \
     "lighthouse" \

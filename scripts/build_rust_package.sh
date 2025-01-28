@@ -26,9 +26,6 @@ build_rust_package() {
         return
     fi
 
-    # Delete cached binaries for the same package
-    rm -f "$BUILDDIR/${package}-"*
-
     # Clone the repository
     local build_dir="$BUILDROOT/build/$package"
     mkdir -p "$build_dir"

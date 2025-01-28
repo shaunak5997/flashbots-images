@@ -7,7 +7,7 @@ Prerequisites
 
 - Nix should be installed and the `nix-command` and `flakes` features should be enabled.
 
-- For now, the Debian archive keyring needs to be installed on your computer. This will be fixed in a future update.
+- For now, the Debian archive keyring needs to be installed on your computer. This will be fixed in a future update
 
 Usage
 -----
@@ -77,6 +77,8 @@ Directory Structure
 ├── kernel-yocto.config               # Kernel configuration for kernel.nix, copied directly from Yocto
 ├── debloat.conf                      # Configuration to remove unnecessary files from the base image
 ├── env.json.example                  # Example environment variable configuration
+├── scripts                           # Build scripts for compiling software inside the Debian chroot
+│   └── build_rust_package.sh         # Helper script to reproducibly build rust binaries inside chroot
 ├── buildernet                        # Contains all buildernet-specific configuration
 │   ├── mkosi.skeleton/etc            # Files to be directly copied into buildernet images
 │   │   ├── init.d                    # Contains sysvinit services for rbuilder services
@@ -85,8 +87,7 @@ Directory Structure
 │   │   └── boot.d/persistence        # Initializes runtime directories for persistence
 │   ├── buildernet.conf               # Primary configuration file for rbuilder mkosi configuration
 │   ├── mkosi.postinst                # Handles users/permissions and templates out mustache files
-│   ├── build_rust_package.sh         # Helper script to reproducibly build rust binaries inside chroot
-│   └── mkosi.build                   # Calls above helper script to build lighthouse, reth, and rbuilder
+│   └── mkosi.build                   # Calls rust build script to build lighthouse, reth, and rbuilder
 ├── mkosi.skeleton                    # Files to be directly copied into all images
 │   ├── etc                           # Base image sysvinit configuration
 │   │   ├── inittab                   # Sysvinit configuration file
@@ -94,3 +95,20 @@ Directory Structure
 │   └── init                          # Initramfs entrypoint. This is called directly by the kernel
 └── mkosi.prepare                     # Copies nix-generated kernel into the image
 ```
+
+Current Functionality
+---------------------
+
+- [x] Bit-for-bit reproducible/deterministic images
+- [x] Uses sysvinit instead of systemd
+- [x] Customizable kernel config
+- [x] Doesn't use libraries or binaries from host
+- [x] Build process doesn't require containerization
+- [x] Small image size (<50Mb root partition base size)
+- [x] Ultra minimal initramfs
+- [x] Packaged cleanly as a tiny UKI image
+- [x] Run basic buildernet in image
+- [ ] Run CVM Reverse Image Proxy
+- [ ] Devtools
+- [ ] Verification Script
+- [ ] Proper CI
