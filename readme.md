@@ -7,7 +7,7 @@ Prerequisites
 
 - Nix should be installed and the `nix-command` and `flakes` features should be enabled.
 
-- Right now, I'm using the latest commit of mkosi directly with no patches, so the official nixpkgs patches to fix the hardcoded paths in mkosi aren't being applied. For this reason, you should install qemu and debian-archive-keyring since they will be used from the host for the time being. After I submit the updated patches to nixpkgs, this will no longer be necessary.
+- For now, the Debian archive keyring needs to be installed on your computer. This will be fixed in a future update.
 
 Usage
 -----
@@ -22,13 +22,13 @@ mkosi --force
 Create a qcow2 image to store persistent files:
 
 ```shell
-qemu-img create -f qcow2 persistent.qcow2 200
+qemu-img create -f qcow2 persistent.qcow2 2048G
 ```
 
 Run with:
 
 ```shell
-sudo qemu-system-x86_64 \                                                                                                         mkosi-poc on  main   nix-shell-env 
+sudo qemu-system-x86_64 \
   -enable-kvm \
   -machine type=q35,smm=on \
   -m 16384M \
@@ -38,6 +38,33 @@ sudo qemu-system-x86_64 \                                                       
   -kernel build/tdx-debian \
   -drive file=persistent.qcow2,format=qcow2,if=virtio,cache=writeback
 ```
+
+Developing
+----------
+
+<h3>Building the Kernel</h3>
+
+Just running `mkosi` itself will not trigger a kernel build. To rebuild the kernel, run:
+
+```shell
+exit # if you're currently in the nix develop shell
+nix build --rebuild flake.nix # not needed if you only modified kernel.nix
+nix develop -c $SHELL
+```
+
+<h3>Mkosi Debugging</h3>
+
+To debug the mkosi environment, insert the following line in the mkosi script where you want to break:
+```shell
+socat UNIX-LISTEN:$SRCDIR/debug.sock,fork EXEC:/bin/bash,pty,stderr
+```
+
+Then, once the breakpoint is hit, you can get a shell on your computer with:
+```shell
+script -qfc "socat STDIO UNIX-CONNECT:debug.sock" /dev/null
+```
+
+From here, you can run `mkosi-chroot /bin/bash` to get inside Debian
 
 Directory Structure
 -------------------
@@ -67,18 +94,3 @@ Directory Structure
 │   └── init                          # Initramfs entrypoint. This is called directly by the kernel
 └── mkosi.prepare                     # Copies nix-generated kernel into the image
 ```
-
-Current Functionality
----------------------
-
-- [x] Bit-for-bit reproducible/deterministic images
-- [x] Uses sysvinit instead of systemd
-- [x] Customizable kernel config
-- [x] Doesn't use libraries or binaries from host
-- [x] Build process doesn't require containerization
-- [x] Small image size (<50Mb root partition base size)
-- [x] Ultra minimal initramfs
-- [x] Packaged cleanly as a tiny UKI image
-- [x] Run basic buildernet in image
-- [ ] Verification Script
-- [ ] Proper CI
