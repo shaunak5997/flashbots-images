@@ -1,0 +1,111 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:             date-sync
+# Required-Start:       $syslog networking
+# Required-Stop:        $syslog
+# Default-Start:        2 3 4 5
+# Default-Stop:         1
+# Short-Description:    Start and stop the date-sync daemon
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=date-sync
+DESC="Date Sync"
+DAEMON=/usr/sbin/ntpd
+LOGFILE=/var/log/date-sync.log
+LOGFILE_MONITOR=/var/log/date-sync_monitor.log
+PIDFILE=/var/run/date-sync.pid
+PIDFILE_MONITOR=/var/run/date-sync_monitor.pid
+SYSTEM_API_FIFO=/tmp/system-api.fifo
+NTP_SERVER="pool.ntp.org"
+
+log() {
+    if [ -p $SYSTEM_API_FIFO ]; then
+        date_log() {
+            echo -n ""
+        }
+    else
+        date_log() {
+            echo -n "$(date --iso-8601=seconds): "
+        }
+    fi
+    echo "$(date_log)$1" | tee -a $SYSTEM_API_FIFO
+}
+
+monitor_and_restart() {
+    while true; do
+        if ! pgrep -f "$DAEMON" > /dev/null; then
+            log "$NAME crashed. Restarting in 60 seconds..." >> ${LOGFILE_MONITOR}
+            sleep 60
+            start
+        fi
+        sleep 5
+    done
+}
+
+start() {
+    log "Starting $NAME"
+    start-stop-daemon -S --make-pidfile --pidfile $PIDFILE \
+        --background --startas /bin/sh -- -c "exec \
+        ${DAEMON} -n -d -p $NTP_SERVER \
+        2>&1 | tee ${LOGFILE}"
+
+    # Start the monitor in the background
+    monitor_and_restart &
+    echo $! > $PIDFILE_MONITOR
+}
+
+stop() {
+    log "Stopping $NAME"
+    local services="date-sync monitor"
+    for service in $services; do
+        local pidfile_var="PIDFILE"
+        [ "$service" = "monitor" ] && pidfile_var="PIDFILE_MONITOR"
+
+        local pidfile=$(eval echo \$$pidfile_var)
+
+        log "Stopping $service"
+        if [ -f "$pidfile" ]; then
+            local pid=$(cat "$pidfile")
+            local pids="$pid $(pgrep -P $pid)"
+
+            # Send SIGTERM to all processes
+            kill -TERM $pids 2>/dev/null
+
+            # Wait for processes to terminate
+            for i in $(seq 1 5); do
+                if ! kill -0 $pids 2>/dev/null; then
+                    break
+                fi
+                sleep 1
+            done
+
+            # Send SIGKILL to any remaining processes
+            kill -KILL $pids 2>/dev/null
+
+            rm -f "$pidfile"
+            echo "$service stopped"
+        else
+            echo "$pidfile not found, $service may not be running"
+        fi
+    done
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	stop
+	start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

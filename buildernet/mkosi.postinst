@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euxo pipefail
+
+# Create groups/users
+mkosi-chroot groupadd -r eth
+mkosi-chroot useradd -r -s /bin/false -G eth reth
+mkosi-chroot useradd -r -s /bin/false -G eth lighthouse
+mkosi-chroot useradd -r -s /bin/false -G eth rbuilder
+
+ENV_FILE="env.json"
+if [ ! -f "$ENV_FILE" ]; then
+    echo "Error: env.json not found"
+    exit 1
+fi
+
+# Find and process all mustache templates in skeleton directory
+find buildernet/mkosi.skeleton -type f -name "*.mustache" | while read -r template; do
+    rel_path="${template#buildernet/mkosi.skeleton/}"
+    output_path="$BUILDROOT/${rel_path%.mustache}"
+    mustache "$ENV_FILE" "$template" > "$output_path"
+    rm "$BUILDROOT/$rel_path"
+done
+
+# Set permissions of templated files
+mkosi-chroot chmod 640 /etc/rbuilder/config
+mkosi-chroot chmod 600 /etc/rclone.conf

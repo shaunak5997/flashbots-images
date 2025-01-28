@@ -1,0 +1,132 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:        rbuilder
+# Required-Start:  reth
+# Required-Stop:   
+# Default-Start:   2 3 4 5
+# Default-Stop:    1
+# Short-Description: Start and stop the rbuilder daemon
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/bin/rbuilder
+NAME=rbuilder
+DESC="Rust Builder"
+LOGFILE=/var/log/rbuilder.log
+LOGFILE_MONITOR=/var/log/rbuilder_monitor.log
+PIDFILE=/var/run/rbuilder.pid
+PIDFILE_MONITOR=/var/run/rbuilder_monitor.pid
+RBUILDER_USER=rbuilder
+RBUILDER_PERSISTENT_DIR=/persistent/rbuilder
+ETH_GROUP=eth
+RETH_DIR=/persistent/reth
+RETH_USER=reth
+
+monitor_and_restart() {
+    while true; do
+        if ! pgrep -f "$DAEMON" > /dev/null; then
+            echo "$(date): $DESC crashed. Restarting in 60 seconds..." >> ${LOGFILE_MONITOR}
+            sleep 60
+            start_builder
+        fi
+        sleep 5
+    done
+}
+
+start_builder() {
+    start-stop-daemon -S --make-pidfile -p $PIDFILE -c $RBUILDER_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec
+        ${DAEMON} run /etc/rbuilder.config \
+        2>&1 | tee ${LOGFILE}"
+}
+
+start() {
+    echo -n "Starting $DESC: "
+    echo "Starting $DESC" > /tmp/system-api.fifo
+
+    # Ensure the RETH_DIR and all subdirectories have correct permissions
+    chown -R $RETH_USER:$ETH_GROUP $RETH_DIR
+    # A hack to allow rbuilder's user to access reth via group permissions
+    chmod 770 $RETH_DIR
+    chmod 770 $RETH_DIR/static_files
+    chmod 770 $RETH_DIR/db
+    chmod 660 $RETH_DIR/db/mdbx.lck
+    chmod 660 $RETH_DIR/db/mdbx.dat
+    chmod 660 /tmp/reth.ipc
+
+    mkdir -p $RBUILDER_PERSISTENT_DIR /var/run/rbuilder
+    if [ ! -f $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json ]; then
+        echo "[]" > $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json
+        chmod 640 $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json
+    fi
+    chown -R $RBUILDER_USER:$RBUILDER_USER /persistent/rbuilder /etc/rbuilder.config /var/run/rbuilder
+    chmod 640 /etc/rbuilder.config
+
+    # Ensure the rbuilder log file exists and has correct permissions
+    touch $LOGFILE
+    chown $RBUILDER_USER:$ETH_GROUP $LOGFILE
+
+    start_builder
+    echo "$NAME."
+
+    # Start the monitor in the background
+    monitor_and_restart &
+    echo $! > $PIDFILE_MONITOR
+}
+
+stop() {
+    echo "Stopping $DESC" > /tmp/system-api.fifo
+    local services="rbuilder monitor"
+    for service in $services; do
+        local pidfile_var="PIDFILE"
+        [ "$service" = "monitor" ] && pidfile_var="PIDFILE_MONITOR"
+
+        local pidfile=$(eval echo \$$pidfile_var)
+
+        echo "Stopping $service"
+        if [ -f "$pidfile" ]; then
+            local pid=$(cat "$pidfile")
+            local pids="$pid $(pgrep -P $pid)"
+
+            # Send SIGTERM to all processes
+            kill -TERM $pids 2>/dev/null
+
+            # Wait for processes to terminate
+            for i in $(seq 1 5); do
+                if ! kill -0 $pids 2>/dev/null; then
+                    break
+                fi
+                sleep 1
+            done
+
+            # Send SIGKILL to any remaining processes
+            kill -KILL $pids 2>/dev/null
+
+            rm -f "$pidfile"
+            echo "$service stopped"
+        else
+            echo "$pidfile not found, $service may not be running"
+        fi
+    done
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        stop
+        # gracefully wait for the services to stop
+        sleep 10
+        start
+        ;;
+  *)
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|reload}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0

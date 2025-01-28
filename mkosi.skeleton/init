@@ -6,5 +6,24 @@ mount -t proc -o noexec,nosuid,nodev proc /proc
 mount -t sysfs -o noexec,nosuid,nodev sysfs /sys
 mount -t devtmpfs -o exec,nosuid devtmpfs /dev
 
+# todo: replace with simpler setup
+if [ ! -e /dev/vda ]; then
+    echo "Warning: Persistent volume not found!"
+else
+    # Check if the drive needs to be formatted
+    if ! blkid /dev/vda | grep -q 'TYPE="ext4"'; then
+        echo "Formatting persistent volume..."
+        mkfs.ext4 -F /dev/vda
+    fi
+
+    # Mount the persistent volume
+    mkdir /persistent
+    if mount /dev/vda /persistent; then
+        echo "Persistent storage mounted successfully"
+    else
+        echo "Failed to mount persistent storage"
+    fi
+fi
+
 # Hand over to sysvinit
 exec /sbin/init
