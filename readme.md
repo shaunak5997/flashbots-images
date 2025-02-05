@@ -17,7 +17,7 @@ nix develop -c $SHELL
 mkosi --force
 ```
 
-> Make sure the above command is not run with sudo, as this will clear necessary environment variables set by the nix shell
+> Note: Make sure the above command is not run with sudo, as this will clear necessary environment variables set by the nix shell
 
 Create a qcow2 image to store persistent files:
 
@@ -52,6 +52,8 @@ nix build --rebuild flake.nix # not needed if you only modified kernel.nix
 nix develop -c $SHELL
 ```
 
+> Note: Changing the kernel version requires updating the sha256 checksum in `kernel.nix` 
+
 <h3>Mkosi Debugging</h3>
 
 To debug the mkosi environment, insert the following line in the mkosi script where you want to break:
@@ -71,44 +73,33 @@ Directory Structure
 
 ```
 .
-├── mkosi.conf                        # Main mkosi configuration file
-├── flake.nix                         # Defines a shell environment with fixed deps for mkosi
-├── kernel.nix                        # Nix derivation to reproducibly build the kernel
-├── kernel-yocto.config               # Kernel configuration for kernel.nix, copied directly from Yocto
-├── debloat.conf                      # Configuration to remove unnecessary files from the base image
-├── env.json.example                  # Example environment variable configuration
-├── scripts                           # Build scripts for compiling software inside the Debian chroot
-│   └── build_rust_package.sh         # Helper script to reproducibly build rust binaries inside chroot
-├── buildernet                        # Contains all buildernet-specific configuration
-│   ├── mkosi.skeleton/etc            # Files to be directly copied into buildernet images
-│   │   ├── init.d                    # Contains sysvinit services for rbuilder services
-│   │   ├── rbuilder/config.mustache  # Template for rbuilder configuration
-│   │   ├── rclone.conf.mustache      # Template for reth-sync
-│   │   └── boot.d/persistence        # Initializes runtime directories for persistence
-│   ├── buildernet.conf               # Primary configuration file for rbuilder mkosi configuration
-│   ├── mkosi.postinst                # Handles users/permissions and templates out mustache files
-│   └── mkosi.build                   # Calls rust build script to build lighthouse, reth, and rbuilder
-├── mkosi.skeleton                    # Files to be directly copied into all images
-│   ├── etc                           # Base image sysvinit configuration
-│   │   ├── inittab                   # Sysvinit configuration file
-│   │   └── init.d/networking         # Minimal network interface and dhcp service
-│   └── init                          # Initramfs entrypoint. This is called directly by the kernel
-└── mkosi.prepare                     # Copies nix-generated kernel into the image
+├── mkosi.conf                # Main mkosi configuration file
+├── mkosi.prepare             # Copies nix-generated kernel into the image
+├── mkosi.finalize            # Cleans up stray files at the end of the image generation process
+├── debloat.conf              # Configuration to remove unnecessary files from the base image
+├── env.json.example          # Example environment variable configuration
+├── mkosi.skeleton            # Files to be directly copied into all images
+│   ├── etc/rcS.d             # Early boot scripts
+│   │   ├── S02network        # Minimal network interface and dhcp setup script
+│   │   └── S02persistence    # Script to setup /persistent directory
+│   └── init                  # Initramfs entrypoint. This is called directly by the kernel
+├── scripts                   # Contains helper scripts for building and installing services
+│   ├── install_service.sh    # Configures a script from services/ to run on boot with logs
+│   └── build_rust_package.sh # Helper script to reproducibly build rust binaries inside chroot
+├── services                  # Contains runit service files
+│
+├── flake.nix                 # Defines a shell environment with fixed deps for mkosi
+├── kernel-yocto.config       # Kernel configuration for kernel.nix, copied directly from Yocto
+├── kernel.nix                # Nix derivation to reproducibly build the kernel
+│
+├── buildernet                # Contains all buildernet-specific configuration
+│   ├── mkosi.skeleton/etc    # Template files for services, rendered using env.json 
+│   ├── render-config.sh      # Renders mustache files using env.json and download rbuilder-bidding
+│   ├── buildernet.conf       # Primary configuration file for rbuilder mkosi configuration
+│   ├── mkosi.build           # Calls rust build script to build lighthouse, reth, and rbuilder
+│   └── mkosi.postinst        # Handles buildernet-specific users/permissions
+│
+└── devtools                  # Configuration for image development and testing
+    ├── devtools.conf         # Primary configuration file for devtools
+    └── rcS.d/S00console      # Early boot script for an interactive shell over serial
 ```
-
-Current Functionality
----------------------
-
-- [x] Bit-for-bit reproducible/deterministic images
-- [x] Uses sysvinit instead of systemd
-- [x] Customizable kernel config
-- [x] Doesn't use libraries or binaries from host
-- [x] Build process doesn't require containerization
-- [x] Small image size (<50Mb root partition base size)
-- [x] Ultra minimal initramfs
-- [x] Packaged cleanly as a tiny UKI image
-- [x] Run basic buildernet in image
-- [ ] Run CVM Reverse Image Proxy
-- [ ] Devtools
-- [ ] Verification Script
-- [ ] Proper CI

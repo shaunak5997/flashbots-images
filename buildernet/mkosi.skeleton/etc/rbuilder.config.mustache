@@ -15,16 +15,12 @@ ignore_blobs = false
 ignore_cancellable_orders = false
 jsonrpc_server_ip = "127.0.0.1"
 jsonrpc_server_port = 8645
-key_registration_url = "http://127.0.0.1:7937"
 live_builders = ["mgp-ordering", "mp-ordering", "mp-ordering-cb", "mp-ordering-deadline"]
 log_color = false
 log_json = true
 log_level = "info,rbuilder=debug"
 max_concurrent_seals = 1
-optimistic_enabled = true
-optimistic_max_bid_value_eth = "10"
-optimistic_prevalidate_optimistic_blocks = false
-optimistic_relay_secret_key = "{{rbuilder.optimistic_relay_secret_key}}"
+optimistic_enabled = false
 relay_secret_key = "{{rbuilder.relay_secret_key}}"
 reth_db_path = "/persistent/reth/db"
 reth_static_files_path = "/persistent/reth/static_files"
