@@ -67,39 +67,3 @@ script -qfc "socat STDIO UNIX-CONNECT:debug.sock" /dev/null
 ```
 
 From here, you can run `mkosi-chroot /bin/bash` to get inside Debian
-
-Directory Structure
--------------------
-
-```
-.
-├── mkosi.conf                # Main mkosi configuration file
-├── mkosi.prepare             # Copies nix-generated kernel into the image
-├── mkosi.finalize            # Cleans up stray files at the end of the image generation process
-├── debloat.conf              # Configuration to remove unnecessary files from the base image
-├── env.json.example          # Example environment variable configuration
-├── mkosi.skeleton            # Files to be directly copied into all images
-│   ├── etc/rcS.d             # Early boot scripts
-│   │   ├── S02network        # Minimal network interface and dhcp setup script
-│   │   └── S02persistence    # Script to setup /persistent directory
-│   └── init                  # Initramfs entrypoint. This is called directly by the kernel
-├── scripts                   # Contains helper scripts for building and installing services
-│   ├── install_service.sh    # Configures a script from services/ to run on boot with logs
-│   └── build_rust_package.sh # Helper script to reproducibly build rust binaries inside chroot
-├── services                  # Contains runit service files
-│
-├── flake.nix                 # Defines a shell environment with fixed deps for mkosi
-├── kernel-yocto.config       # Kernel configuration for kernel.nix, copied directly from Yocto
-├── kernel.nix                # Nix derivation to reproducibly build the kernel
-│
-├── buildernet                # Contains all buildernet-specific configuration
-│   ├── mkosi.skeleton/etc    # Template files for services, rendered using env.json 
-│   ├── render-config.sh      # Renders mustache files using env.json and download rbuilder-bidding
-│   ├── buildernet.conf       # Primary configuration file for rbuilder mkosi configuration
-│   ├── mkosi.build           # Calls rust build script to build lighthouse, reth, and rbuilder
-│   └── mkosi.postinst        # Handles buildernet-specific users/permissions
-│
-└── devtools                  # Configuration for image development and testing
-    ├── devtools.conf         # Primary configuration file for devtools
-    └── rcS.d/S00console      # Early boot script for an interactive shell over serial
-```
