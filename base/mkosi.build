@@ -7,6 +7,5 @@ if [ -z "$KERNEL_IMAGE" ] || [ -z "$KERNEL_VERSION" ]; then
 fi
 
 # Copy kernel and config to a place where mkosi can find it
-mkdir -p "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION"
-cp "$KERNEL_IMAGE" "$BUILDROOT/usr/lib/modules/$KERNEL_VERSION/vmlinuz"
-cp ./kernel-yocto.config "$BUILDROOT/boot/config-$KERNEL_VERSION"
+mkdir -p "$DESTDIR/usr/lib/modules/$KERNEL_VERSION"
+cp "$KERNEL_IMAGE" "$DESTDIR/usr/lib/modules/$KERNEL_VERSION/vmlinuz"

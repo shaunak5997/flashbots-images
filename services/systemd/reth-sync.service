@@ -1,0 +1,16 @@
+[Unit]
+Description=Reth Chain Data Sync
+After=network-setup.service persistence-setup.service
+Before=reth.service
+
+[Service]
+User=reth
+Group=eth
+Type=oneshot
+ExecStart=/usr/bin/reth-sync
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=minimal.target
