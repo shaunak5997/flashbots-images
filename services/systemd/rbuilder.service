@@ -7,7 +7,6 @@ ConditionPathExists=/persistent
 Type=exec
 User=rbuilder
 Group=eth
-WorkingDirectory=/var/run/rbuilder
 ExecStartPre=/bin/bash /usr/bin/rbuilder-init.sh
 ExecStart=/usr/bin/bwrap \
     --ro-bind /usr /usr \

@@ -8,7 +8,6 @@ ConditionPathExists=/persistent
 [Service]
 User=reth
 Group=eth
-WorkingDirectory=/persistent/reth
 ExecStart=/usr/bin/reth node \
     --full \
     --datadir "/persistent/reth" \

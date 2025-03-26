@@ -8,8 +8,6 @@ ConditionPathExists=/persistent
 Type=exec
 User=lighthouse
 Group=eth
-WorkingDirectory=/persistent/lighthouse
-Environment=HOME=/persistent/lighthouse
 ExecStartPre=/usr/bin/lighthouse-init
 ExecStart=/usr/bin/lighthouse bn \
     --eth1 \

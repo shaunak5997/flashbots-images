@@ -18,9 +18,8 @@ mkdir -p "$SERVICE_DIR"
 
 # Copy systemd service files for buildernet
 for service in \
-    lighthouse reth reth-sync \
-    rbuilder-bidding rbuilder
+    lighthouse # reth reth-sync \
+    # rbuilder-bidding rbuilder
 do
-    # install -m 644 "services/systemd/$service.service" "$SERVICE_DIR/"
-    echo "Skipping installation of $service"
+    install -m 644 "services/systemd/$service.service" "$SERVICE_DIR/"
 done
