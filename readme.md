@@ -21,13 +21,6 @@ nix develop -c $SHELL
 mkosi --force -I buildernet.conf
 ```
 
-For Ubuntu:
-```shell
-source ~/.nix-profile/etc/profile.d/nix.sh
-nix --extra-experimental-features nix-command develop --extra-experimental-features flakes -c $SHELL
-mkosi --force -I buildernet.conf
-```
-
 > Note: Make sure the above command is not run with sudo, as this will clear necessary environment variables set by the nix shell
 
 Create a qcow2 image to store persistent files:
