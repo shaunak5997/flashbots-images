@@ -18,7 +18,7 @@ Usage
 
 ```shell
 nix develop -c $SHELL
-mkosi --force
+mkosi --force -I buildernet.conf
 ```
 
 > Note: Make sure the above command is not run with sudo, as this will clear necessary environment variables set by the nix shell
