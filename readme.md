@@ -52,7 +52,7 @@ Just running `mkosi` itself will not trigger a kernel build. To rebuild the kern
 
 ```shell
 exit # if you're currently in the nix develop shell
-nix build --rebuild flake.nix # not needed if you only modified kernel.nix
+nix-build kernel.nix # not needed if you only modified kernel.nix
 nix develop -c $SHELL
 ```
 
