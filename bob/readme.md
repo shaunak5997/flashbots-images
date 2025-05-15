@@ -43,6 +43,10 @@ Testing
 -------
 
 ```shell
+qemu-img create -f qcow2 tdx-disk.qcow2 200G
+```
+
+```shell
 ssh-keygen -t ed25519
 curl -X POST -d "$(cut -d" " -f2 /root/.ssh/id_ed25519.pub)" http://localhost:8080
 sleep 1
