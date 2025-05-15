@@ -30,7 +30,8 @@ mkdir "$BUILDROOT/etc/systemd/system/minimal.target.wants"
 for service in \
     network-setup.service \
     openntpd.service \
-    fluent-bit.service \
+    searcher-log-reader.service \
+    searcher-log-writer.service \
     wait-for-key.service \
     searcher-firewall.service \
     dropbear.service \
