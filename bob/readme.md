@@ -34,17 +34,15 @@ Service Order
 2. Get searcher key from LUKS partition or wait for key on port 8080 (**name:** `wait-for-key.service`) (**after:** `network-setup.service`)
 3. Setup firewall (**name:** `searcher-firewall.service`) (**after:** `network-setup.service`)
 4. Start dropbear server for `initialize`, `toggle`, etc. (**name:** `dropbear.service`) (**after:** `wait-for-key.service`, `searcher-firewall.service`)
-5. Lighthouse (**name:** `lighthouse.service`) (**after:** `/persistent` is mounted)
-6. Start the podman container (**name:** `searcher-container.service`) (**after:** `dropbear.service`, `lighthouse.service`, `searcher-firewall.service`, `/persistent` is mounted)
-7. SSH pubkey server (**name:** `ssh-pubkey-server.service`) (**after:** `searcher-container.service`)
-8. CVM reverse proxy for SSH pubkey server (**name:** `cvm-reverse-proxy.service`) (**after:** `ssh-pubkey-server.service`)
+5. Open a log socket and forward text from it to the delayed log file after 120s (**name:** searcher-log-reader.service) (**after:** `/persistent` is mounted)
+6. Write new text in `bob.log` to the log socket (**name:** searcher-log-writer.service) (**after:** searcher-log-reader.service)
+7. Lighthouse (**name:** `lighthouse.service`) (**after:** `/persistent` is mounted)
+8. Start the podman container (**name:** `searcher-container.service`) (**after:** `dropbear.service`, `lighthouse.service`, `searcher-firewall.service`, `/persistent` is mounted)
+9. SSH pubkey server (**name:** `ssh-pubkey-server.service`) (**after:** `searcher-container.service`)
+10. CVM reverse proxy for SSH pubkey server (**name:** `cvm-reverse-proxy.service`) (**after:** `ssh-pubkey-server.service`)
 
 Testing
 -------
-
-```shell
-qemu-img create -f qcow2 tdx-disk.qcow2 200G
-```
 
 ```shell
 ssh-keygen -t ed25519

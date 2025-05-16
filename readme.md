@@ -43,7 +43,7 @@ sudo qemu-system-x86_64 \
   -netdev user,id=net0 \
   -device virtio-net-pci,netdev=net0 \
   -device virtio-scsi-pci,id=scsi0 \
-  -drive file=tdx-disk.qcow2,format=qcow2,if=none,id=disk0 \
+  -drive file=persistent.qcow2,format=qcow2,if=none,id=disk0 \
   -device scsi-hd,drive=disk0,bus=scsi0.0,channel=0,scsi-id=0,lun=10
 ```
 
