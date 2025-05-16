@@ -5,8 +5,8 @@ Requires=searcher-log-reader.service
 
 [Service]
 Type=simple
-ExecStartPre=/bin/touch /persistent/searcher_logs/bob.log
-ExecStart=tail -F -n0 /persistent/searcher_logs/bob.log | ncat -U /run/delayed_logs/delay.sock
+ExecStartPre=/bin/sudo -u searcher touch /persistent/searcher_logs/bob.log
+ExecStart=/bin/sh -c "tail -F -n0 /persistent/searcher_logs/bob.log | ncat -U /run/delayed_logs/delay.sock"
 Restart=always
 
 [Install]
