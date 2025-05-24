@@ -10,6 +10,7 @@ TITAN_BUILDER_IP="52.207.17.217"
 ###############################################################################
 SSH_CONTROL_PORT=22        # Inbound: SSH control plane (always on)
 SSH_DATA_PORT=10022        # Inbound: SSH data plane (maintenance mode only)
+SSH_REGISTER_PORT=8080     # Inbound: SSH registration
 
 CL_P2P_PORT=9000           # TCP/UDP inbound/outbound: Consensus client P2P (always on)
 EL_P2P_PORT=30303          # TCP/UDP outbound: Execution client P2P (maintenance mode only)
@@ -144,6 +145,10 @@ iptables -A $CHAIN_ALWAYS_ON_OUT -j RETURN
 iptables -A $CHAIN_MAINTENANCE_IN -p tcp --dport $SSH_DATA_PORT \
     -m conntrack --ctstate NEW -j ACCEPT
 
+# SSH Registry port (not used in production mode)
+iptables -A $CHAIN_MAINTENANCE_IN -p tcp --dport $SSH_REGISTER_PORT \
+    -m conntrack --ctstate NEW -j ACCEPT
+
 # EL P2P inbound on port 30303 (TCP + UDP)
 iptables -A $CHAIN_MAINTENANCE_IN -p tcp --dport $EL_P2P_PORT \
     -m conntrack --ctstate NEW -j ACCEPT
@@ -173,6 +178,10 @@ iptables -A $CHAIN_MAINTENANCE_OUT -p tcp --dport $HTTPS_PORT \
 iptables -A $CHAIN_MAINTENANCE_OUT -p tcp --dport $EL_P2P_PORT \
     -m conntrack --ctstate NEW -j ACCEPT
 iptables -A $CHAIN_MAINTENANCE_OUT -p udp --dport $EL_P2P_PORT \
+    -m conntrack --ctstate NEW -j ACCEPT
+
+# SSH Registry port (not used in production mode)
+iptables -A $CHAIN_MAINTENANCE_OUT -p tcp --dport $SSH_REGISTER_PORT \
     -m conntrack --ctstate NEW -j ACCEPT
 
 # Return from MAINTENANCE_OUT back to caller (OUTPUT chain -> END) 
