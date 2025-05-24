@@ -29,6 +29,7 @@ mkdir "$BUILDROOT/etc/dropbear"
 mkdir "$BUILDROOT/etc/systemd/system/minimal.target.wants"
 for service in \
     network-setup.service \
+    azure-complete-provisioning.service \
     openntpd.service \
     logrotate.service \
     searcher-log-reader.service \
