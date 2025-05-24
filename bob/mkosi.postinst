@@ -17,7 +17,6 @@ echo "/usr/bin/searchersh" >> "$BUILDROOT/etc/shells"
 
 # Install lighthouse
 install -m 755 services/bin/lighthouse-init "$BUILDROOT/usr/bin/"
-install -m 644 "services/systemd/lighthouse.service" "$BUILDROOT/etc/systemd/system/"
 
 mkdir -p "$BUILDROOT/etc/searcher/ssh_hostkey"
 
