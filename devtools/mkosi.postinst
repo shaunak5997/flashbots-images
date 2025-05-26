@@ -1,3 +1,0 @@
-#!/bin/sh
-mkosi-chroot passwd -u root
-echo "root:dqSPjo4p" | mkosi-chroot chpasswd
