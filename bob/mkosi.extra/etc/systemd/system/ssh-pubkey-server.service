@@ -5,7 +5,7 @@ Requires=searcher-container.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/ssh-pubkey-server --listen-addr=127.0.0.1:5001 --container-ssh-pubkey-file /etc/searcher/ssh_hostkey/host_key.pub --host-ssh-pubkey-file /etc/dropbear/dropbear_ed25519_host_key.pub
+ExecStart=/usr/bin/ssh-pubkey-server --listen-addr=127.0.0.1:5001 --ssh-pubkey-file=/etc/searcher/ssh_hostkey/host_key.pub --ssh-pubkey-file=/etc/dropbear/dropbear_ed25519_host_key.pub
 Restart=always
 RestartSec=5
 
