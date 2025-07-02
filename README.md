@@ -1,4 +1,4 @@
-# Flashboxes 📦⚡📦
+# Flashbots Images 📦⚡📦
 
 **Reproducible hardened Linux images for confidential computing and safe MEV**
 
