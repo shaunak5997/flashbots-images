@@ -184,13 +184,12 @@ For comprehensive mkosi options, see: [mkosi Documentation](https://github.com/s
 ## Custom Kernel Configuration
 
 Flashboxes supports custom kernel configurations through base configs and snippets.
-However, this functionality is only available once [PR #11](https://github.com/flashbots/flashboxes/pull/11) is merged.
 
 ### Using Kernel Snippets
 
-Create kernel configuration snippets in `kernel/snippets/`:
+Create a custom kernel config snippet in your module folder:
 
-**`kernel/snippets/myfeature.config`**:
+**`module/kernel.config`**:
 ```
 # Enable custom features
 CONFIG_MY_FEATURE=y
@@ -199,10 +198,10 @@ CONFIG_MY_FEATURE=y
 **Enable in your module**:
 ```ini
 [Build]
-Environment=KERNEL_CONFIG_SNIPPETS=myfeature,another-snippet
+Environment=KERNEL_CONFIG_SNIPPETS=module/kernel.config,module/another-kernel-snippet.config
 ```
 
-These snippets will be applied on top of the base configuration in `kernel/kernel-yocto.config`
+These snippets will be applied over the base configuration in `kernel/kernel-yocto.config`
 
 ## Adding Source Repositories
 
@@ -604,6 +603,36 @@ sudo dpkg -i mypackage-1.0.deb
 4. **Purge**: `prerm remove` → files removed → `postrm purge`
 
 For comprehensive .deb creation, see: [Debian New Maintainers' Guide](https://www.debian.org/doc/manuals/maint-guide/)
+
+## Building with Podman (Not Recommended)
+For systems without systemd v250+ or where Nix installation isn't feasible, you can use the experimental Podman containerization support. This approach is not recommended due to slower build times and a complex setup process.
+1. Configure the Podman daemon to use a storage driver other than OverlayFS  
+   - The btrfs driver is fastest, but requires that you have a btrfs filesystem
+   - The storage driver can be configuring by editing `/etc/containers/storage.conf`
+2. Build the development container:
+   ```
+   sudo podman build -t flashbots-images .
+   ```
+3. Create required directories
+   ```
+   mkdir mkosi.packages mkosi.cache mkosi.builddir build 
+   ```
+4. Run the container with proper mounts and privilages
+   ```
+   sudo podman run \
+     --storage-driver btrfs \
+     --privileged \
+     --cap-add=ALL \
+     --security-opt label=disable \
+     -it \
+     -v $(pwd)/mkosi.packages:/home/ubuntu/mkosi/mkosi.packages \
+     -v $(pwd)/mkosi.cache:/home/ubuntu/mkosi/mkosi.cache \
+     -v $(pwd)/mkosi.builddir:/home/ubuntu/mkosi/mkosi.builddir \
+     -v $(pwd)/build:/home/ubuntu/mkosi/build \
+     flashbots-images
+   ```
+   > Replace "btrfs" with your chosen storage driver
+5. Run the desired `mkosi` command inside the shell Podman environment
 
 ## Debugging and Troubleshooting
 

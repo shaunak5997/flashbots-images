@@ -19,7 +19,7 @@ For more information about this repository, see [the Flashbots collective post](
 
 ### Prerequisites
 
-0. Make sure you're running systemd v250 or greater, or wait for [Docker support](https://github.com/flashbots/flashboxes/pull/11)
+0. Make sure you're running systemd v250 or greater. Alternatively, you can utilize experimental [container support](DEVELOPMENT.md#building-with-podman-not-recommended).
 
 1. **Install Nix** (single user mode is sufficient):
    ```bash
