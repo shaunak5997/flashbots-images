@@ -2,7 +2,7 @@
 
 **Reproducible hardened Linux images for confidential computing and safe MEV**
 
-Flashboxes is a toolkit for building minimal, hardened Linux images designed for confidential computing environments and MEV (Maximum Extractable Value) applications. Built on mkosi and Nix, it provides reproducible, security-focused Linux distributions with strong network isolation, attestation capabilities, and blockchain infrastructure support.
+This repository provides a toolkit for building minimal, hardened Linux images designed for confidential computing environments and MEV (Maximum Extractable Value) applications. Built on mkosi and Nix, it provides reproducible, security-focused Linux distributions with strong network isolation, attestation capabilities, and blockchain infrastructure support.
 
 It contains our [bottom-of-block searcher sandbox](https://collective.flashbots.net/t/searching-in-tdx/3902) infrastructure and will soon contain our [BuilderNet](https://buildernet.org/blog/introducing-buildernet) infrastructure as well, along with any future TDX projects we implement.
 
