@@ -8,7 +8,7 @@ build_rust_package \
     "v7.0.1" \
     "https://github.com/sigp/lighthouse.git" \
     "$LIGHTHOUSE_BINARY" \
-    "modern" \
+    "" \
     "-l z -l zstd -l snappy"
 
 build_rust_package \
