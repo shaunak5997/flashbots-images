@@ -5,7 +5,7 @@ source scripts/build_rust_package.sh
 
 build_rust_package \
     "lighthouse" \
-    "v7.0.1" \
+    "v7.1.0" \
     "https://github.com/sigp/lighthouse.git" \
     "$LIGHTHOUSE_BINARY" \
     "" \
