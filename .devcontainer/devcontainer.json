@@ -1,0 +1,10 @@
+{
+    "name": "flashbots-image",
+    "build": {
+      "dockerfile": "../Dockerfile"
+    },
+    "settings": {},
+    "extensions": [],
+    "postCreateCommand": "echo Ready!"
+  }
+  
